@@ -1,0 +1,41 @@
+﻿@page "/"
+
+<RadzenTree Data="@resources" @bind-CheckedValues=selectedResources AllowCheckBoxes="true">
+    <RadzenTreeLevel TextProperty="Name" ChildrenProperty="Children" HasChildren="@(resource => ((Resource)resource).Children.Count > 0)" />
+</RadzenTree>
+
+@code {
+    IEnumerable<object> selectedResources;
+    IEnumerable<Resource> resources;
+
+    protected override void OnInitialized()
+    {
+        var level1 = new Resource("Level 1", null);
+        var level2 = new Resource("Level 2", level1);
+        var level3 = new Resource("Level 3", level2);
+        level3.Children.Add(new Resource("Child 1", level3));
+        level3.Children.Add(new Resource("Child 2", level3));
+        level3.Children.Add(new Resource("Child 3", level3));
+
+        level2.Children.Add(level3);
+        level1.Children.Add(level2);
+        resources = new List<Resource> {
+          level1
+        };
+    }
+
+    public class Resource
+    {
+        public Resource(string name, Resource parent)
+        {
+            Name = name;
+            Parent = parent;
+            Children = new List<Resource>();
+        }
+
+        public string Name { get; set; }
+        public Resource Parent { get; }
+        public List<Resource> Children { get; set; }
+        public string FullName => Parent != null ? $"{Parent.FullName}.{Name}" : Name;
+    }
+}
